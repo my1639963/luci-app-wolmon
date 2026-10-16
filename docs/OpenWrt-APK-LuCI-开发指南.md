@@ -964,6 +964,17 @@ ssh root@router "rm -rf /tmp/luci-*; /etc/init.d/rpcd restart"
 - 依赖项不能用 `--depends luci-base`（报 unrecognized option），须用 `--info depends:luci-base`。
 - 数据文件**必须**用 `--files PKGROOT`（或 `-F`）指定打包根目录；只给 `--output` 会生成一个只有元数据的空包（~284 字节）。PKGROOT 内即安装后的绝对路径布局（如 `pkgroot/www/...`、`pkgroot/usr/share/...`）。
 - 安装自建未签名包：`apk add --allow-untrusted ./x.apk`；若设备已有同路径配置（如 /etc/config/xxx），安装时**保留现有配置**，包内默认文件存为 `/etc/config/xxx.apk-new`。
+- **pkgroot 必须是最新源码**：调试期常用 scp 直接铺文件，pkgroot 目录往往是早期复制的。打包前务必用 `src/` 重新覆盖 pkgroot 并 **md5 比对确认**，否则 apk 会静默回退设备上的正确文件（本项目 v1.0.0 就因此发布了修复前的旧代码，只能补 1.0.1）。
+  ```
+  # 打包前逐文件核对
+  md5sum src/.../wolmon.js && ssh root@router md5sum /data/pkgroot/www/.../wolmon.js
+  ```
+- 打包后**必须解包验证**（权限 + 内容），别只看包能装：
+  ```
+  mkdir /tmp/chk && cd /tmp/chk && apk extract --allow-untrusted ../x.apk
+  ls -laR /tmp/chk        # 确认 ucode 后端是 -rwxr-xr-x
+  ```
+- BusyBox `find` 不支持 `-printf`，列权限用 `ls -laR`。
 - 完整示例（luci-app-wolmon 实测）：
 ```
 apk.static mkpkg \
