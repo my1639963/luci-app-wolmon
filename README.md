@@ -1,6 +1,8 @@
-# luci-app-wol
+# luci-app-wolmon
 
 **luci-app-wolmon** — OpenWrt/LuCI 可视化网络唤醒（Wake-on-LAN）+ 在线状态监控应用。
+
+> 仓库地址：<https://github.com/my1639963/luci-app-wolmon>
 
 面向 OpenWrt 25.12.x（LuCI master，客户端 JS 视图架构），在官方 `luci-app-wol`
 基础上扩展：唤醒后持续探测设备在线状态、持久化记录已唤醒设备并显示其
