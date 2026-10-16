@@ -959,6 +959,22 @@ ssh root@router "rm -rf /tmp/luci-*; /etc/init.d/rpcd restart"
 **网络后端逻辑：**
 - 同一 MAC 可能持有多个 IPv4（多宿主主机，如群晖双网卡），探测在线状态须 ping 全部候选地址（用户配置 IP 优先），任一响应即判在线——只取 ARP 第一条会误判。
 
+**apk mkpkg 手工打包（无构建环境时）：**
+- 路由器上的 apk-tools 3.0.5 用户态**没有 mkpkg 子命令**。用官方静态二进制 `apk.static`（GitLab Alpine apk-tools releases，`https://gitlab.alpinelinux.org/api/v4/projects/5/packages/generic/apk-tools/<ver>/<arch>/apk.static` 下载）。
+- 依赖项不能用 `--depends luci-base`（报 unrecognized option），须用 `--info depends:luci-base`。
+- 数据文件**必须**用 `--files PKGROOT`（或 `-F`）指定打包根目录；只给 `--output` 会生成一个只有元数据的空包（~284 字节）。PKGROOT 内即安装后的绝对路径布局（如 `pkgroot/www/...`、`pkgroot/usr/share/...`）。
+- 安装自建未签名包：`apk add --allow-untrusted ./x.apk`；若设备已有同路径配置（如 /etc/config/xxx），安装时**保留现有配置**，包内默认文件存为 `/etc/config/xxx.apk-new`。
+- 完整示例（luci-app-wolmon 实测）：
+```
+apk.static mkpkg \
+  --info name:luci-app-wolmon --info version:1.0.0 --info arch:x86_64 \
+  --info license:Apache-2.0 \
+  --info 'description:...' \
+  --info depends:luci-base \
+  --files /data/app-wol/pkgroot \
+  --output /data/app-wol/luci-app-wolmon-1.0.0.apk
+```
+
 ### apk 包管理速查（25.x；详见 §13.7）
 ```
 apk update                         # 刷新索引
