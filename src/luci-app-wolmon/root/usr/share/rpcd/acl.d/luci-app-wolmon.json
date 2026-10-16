@@ -1,0 +1,19 @@
+{
+	"luci-app-wolmon": {
+		"description": "Grant access to Wake-on-LAN monitor functions",
+		"read": {
+			"ubus": {
+				"luci.wolmon": [ "stat", "arp", "status" ],
+				"luci-rpc": [ "getHostHints", "getNetworkDevices" ]
+			},
+			"uci": [ "luci-wolmon" ]
+		},
+		"write": {
+			"ubus": {
+				"luci.wolmon": [ "exec" ],
+				"uci": [ "add", "set", "delete", "order", "commit" ]
+			},
+			"uci": [ "luci-wolmon" ]
+		}
+	}
+}

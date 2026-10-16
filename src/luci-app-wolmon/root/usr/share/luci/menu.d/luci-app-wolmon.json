@@ -1,0 +1,13 @@
+{
+	"admin/services/wolmon": {
+		"title": "Wake on LAN Monitor",
+		"order": 90,
+		"action": {
+			"type": "view",
+			"path": "wolmon"
+		},
+		"depends": {
+			"acl": [ "luci-app-wolmon" ]
+		}
+	}
+}

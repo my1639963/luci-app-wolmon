@@ -1,0 +1,212 @@
+#!/usr/bin/ucode
+'use strict';
+
+import { access, popen, readfile } from 'fs';
+
+const etherwake = '/usr/bin/etherwake';
+const wakeonlan = '/usr/bin/wakeonlan';
+const pingbin = '/bin/ping';
+
+const MAX_PING = 32;
+
+function shellquote(s) {
+	return "'" + replace(s, "'", "'\\''") + "'";
+}
+
+function is_mac(s) {
+	return type(s) == 'string' && match(lc(s), /^([0-9a-f]{2}:){5}[0-9a-f]{2}$/) != null;
+}
+
+function is_ipv4(s) {
+	if (type(s) != 'string' || !match(s, /^([0-9]{1,3}\.){3}[0-9]{1,3}$/))
+		return false;
+
+	for (let part in split(s, '.'))
+		if (part * 1 > 255)
+			return false;
+
+	return true;
+}
+
+/* Parse /proc/net/arp (complete entries only) into { mac: { ipv4: [..], iface: [..] } } */
+function read_arp() {
+	const table = {};
+	const data = readfile('/proc/net/arp');
+
+	if (!data)
+		return table;
+
+	for (let line in split(data, '\n')) {
+		const m = match(lc(line), /^([0-9.]+)[[:space:]]+0x1[[:space:]]+0x[26][[:space:]]+(([0-9a-f]{2}:){5}[0-9a-f]{2})[[:space:]]+\S+[[:space:]]+(\S+)[[:space:]]*$/);
+
+		if (!m)
+			continue;
+
+		const ip = m[1], mac = m[2], dev = m[4];
+
+		if (!is_ipv4(ip) || mac == '00:00:00:00:00:00')
+			continue;
+
+		if (!(mac in table))
+			table[mac] = { ipv4: [], iface: [] };
+
+		if (index(table[mac].ipv4, ip) < 0)
+			push(table[mac].ipv4, ip);
+
+		if (index(table[mac].iface, dev) < 0)
+			push(table[mac].iface, dev);
+	}
+
+	return table;
+}
+
+/* Run pings in parallel via backgrounded subshells, wait for all,
+ * parse "ip=rc=rtt" lines into { ip: { rc, rtt } } */
+function ping_batch(ips) {
+	const result = {};
+
+	if (!length(ips))
+		return result;
+
+	const cmds = [];
+
+	for (let i = 0; i < length(ips) && i < MAX_PING; i++) {
+		if (!is_ipv4(ips[i]))
+			continue;
+
+		push(cmds, '(out=$(ping -c 1 -W 1 ' + shellquote(ips[i]) + ' 2>/dev/null); ' +
+			'rc=$?; ' +
+			't=$(echo "$out" | grep -o "time=[0-9.]*" | cut -d= -f2 | head -n1); ' +
+			'echo "' + ips[i] + '=$rc=$t") &');
+	}
+
+	if (!length(cmds))
+		return result;
+
+	push(cmds, 'wait');
+
+	const fd = popen(join(' ', cmds));
+	const out = fd.read('all');
+	fd.close();
+
+	if (!out)
+		return result;
+
+	for (let line in split(out, '\n')) {
+		const m = match(trim(line), /^([0-9.]+)=([0-9]+)=?([0-9.]*)$/);
+
+		if (m)
+			result[m[1]] = { rc: m[2], rtt: (m[3] != '' && m[3] != null) ? m[3] * 1 : null };
+	}
+
+	return result;
+}
+
+const methods = {
+	stat: {
+		call: function(request) {
+			return {
+				etherwake: access(etherwake, 'x') ? true : false,
+				wakeonlan: access(wakeonlan, 'x') ? true : false,
+				ping: access(pingbin, 'x') ? true : false
+			};
+		}
+	},
+
+	exec: {
+		args: { name: 'string', args: [] },
+		call: function(request) {
+			const result = { stdout: '', stderr: '', code: 1 };
+
+			if (request.args.name == etherwake || request.args.name == wakeonlan) {
+				const parts = map(request.args.args, shellquote);
+				const fd = popen(request.args.name + ' ' + join(' ', parts));
+
+				result.stdout = fd.read('all');
+				result.stderr = '';
+				result.code = fd.close();
+			}
+			else {
+				result.stderr = 'disallowed';
+			}
+
+			return result;
+		}
+	},
+
+	arp: {
+		call: function(request) {
+			return read_arp();
+		}
+	},
+
+	status: {
+		args: { targets: [] },
+		call: function(request) {
+			const targets = request.args.targets || [];
+			const arp = read_arp();
+			const can_ping = access(pingbin, 'x');
+			const results = [];
+			const candidates = [];
+			const ping_ips = [];
+
+			for (let i = 0; i < length(targets); i++) {
+				const t = (type(targets[i]) == 'object') ? targets[i] : {};
+				const mac = lc(t.mac || '');
+				const r = { mac: mac, ip: null, state: 'unknown', rtt_ms: null };
+				const cands = [];
+
+				if (is_mac(mac)) {
+					/* A MAC may own several IPv4 addresses (multi-homed host);
+					 * probe all of them, user-configured IP first. */
+					if (is_ipv4(t.ip))
+						push(cands, t.ip);
+
+					if (mac in arp)
+						for (let j = 0; j < length(arp[mac].ipv4); j++)
+							if (index(cands, arp[mac].ipv4[j]) < 0)
+								push(cands, arp[mac].ipv4[j]);
+
+					r.ip = length(cands) ? cands[0] : null;
+
+					if (can_ping)
+						for (let j = 0; j < length(cands) && length(ping_ips) < MAX_PING; j++)
+							if (index(ping_ips, cands[j]) < 0)
+								push(ping_ips, cands[j]);
+				}
+
+				push(results, r);
+				push(candidates, cands);
+			}
+
+			const pings = ping_batch(ping_ips);
+
+			for (let i = 0; i < length(results); i++) {
+				const r = results[i];
+				const cands = candidates[i];
+				let pinged = false;
+
+				for (let j = 0; j < length(cands); j++) {
+					if (!(cands[j] in pings))
+						continue;
+
+					pinged = true;
+
+					if (pings[cands[j]].rc == '0') {
+						r.state = 'online';
+						r.ip = cands[j];
+						r.rtt_ms = pings[cands[j]].rtt;
+						break;
+					}
+				}
+
+				if (pinged && r.state != 'online')
+					r.state = 'offline';
+			}
+
+			return { results: results };
+		}
+	}
+};
+
+return { "luci.wolmon": methods };

@@ -1,0 +1,138 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-wolmon\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: htdocs/luci-static/resources/view/wolmon.js
+msgid "Wake on LAN Monitor"
+msgstr "网络唤醒监控"
+
+msgid "Wake on LAN is a mechanism to boot computers remotely in the local network."
+msgstr "网络唤醒（WOL）是一种在局域网内远程启动计算机的机制。"
+
+msgid "Required Packages"
+msgstr "必需的软件包"
+
+msgid "At least one Wake on LAN utility is needed. Please install one of the following packages (some extra permissions may be required):"
+msgstr "至少需要一个网络唤醒工具。请安装以下软件包之一（可能需要额外的权限）："
+
+msgid "Install etherwake"
+msgstr "安装 etherwake"
+
+msgid "Install wakeonlan"
+msgstr "安装 wakeonlan"
+
+msgid "Default Settings"
+msgstr "默认设置"
+
+msgid "Default WoL program"
+msgstr "默认 WOL 程序"
+
+msgid "Choose the default Wake on LAN utility"
+msgstr "选择默认的网络唤醒工具"
+
+msgid "Etherwake"
+msgstr "Etherwake"
+
+msgid "Wakeonlan"
+msgstr "Wakeonlan"
+
+msgid "Binary used"
+msgstr "使用的程序"
+
+msgid "You can also install the alternative Wake on LAN utility (some extra permissions may be required):"
+msgstr "您也可以安装备用的网络唤醒工具（可能需要额外的权限）："
+
+msgid "Install %s"
+msgstr "安装 %s"
+
+msgid "Wake on LAN Targets"
+msgstr "网络唤醒目标"
+
+msgid "Configure hosts that can be woken up. Click the Wake button to send a magic packet. The status column shows the live state, refreshed every 5 seconds."
+msgstr "配置可被唤醒的主机。点击“唤醒”按钮发送魔术包。状态列显示实时状态，每 5 秒自动刷新。"
+
+msgid "Note: wakeonlan binary does not support interface, broadcast, and password options (etherwake only)."
+msgstr "注意：wakeonlan 程序不支持接口、广播和密码选项（仅 etherwake 支持）。"
+
+msgid "These options will be ignored if wakeonlan is used."
+msgstr "如果使用 wakeonlan，这些选项将被忽略。"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Mandatory"
+msgstr "必填"
+
+msgid "MAC Address"
+msgstr "MAC 地址"
+
+msgid "MAC already exists"
+msgstr "该 MAC 地址已存在"
+
+msgid "Status"
+msgstr "状态"
+
+msgid "Checking…"
+msgstr "检测中…"
+
+msgid "IP Address"
+msgstr "IP 地址"
+
+msgid "Optional. If left empty, the IPv4 address is discovered automatically via the ARP table after waking the device."
+msgstr "可选。留空时，唤醒设备后将通过 ARP 表自动发现其 IPv4 地址。"
+
+msgid "Discovering…"
+msgstr "发现中…"
+
+msgid "Interface"
+msgstr "接口"
+
+msgid "Etherwake only"
+msgstr "仅 etherwake 支持"
+
+msgid "Broadcast"
+msgstr "广播"
+
+msgid "Password"
+msgstr "密码"
+
+msgid "Edit target"
+msgstr "编辑目标"
+
+msgid "Edit"
+msgstr "编辑"
+
+msgid "Online"
+msgstr "在线"
+
+msgid "Offline"
+msgstr "离线"
+
+msgid "Discovering"
+msgstr "发现中"
+
+msgid "Unknown"
+msgstr "未知"
+
+msgid "Wake"
+msgstr "唤醒"
+
+msgid "Output"
+msgstr "输出"
+
+msgid "Sending wakeup to %s (%s)…"
+msgstr "正在唤醒 %s（%s）…"
+
+msgid "Error: %s"
+msgstr "错误：%s"
+
+msgid "Command completed with code %d"
+msgstr "命令已执行完成，返回码 %d"
+
+msgid "Device %s is now online"
+msgstr "设备 %s 已上线"

@@ -1,0 +1,137 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: luci-app-wolmon\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: htdocs/luci-static/resources/view/wolmon.js
+msgid "Wake on LAN Monitor"
+msgstr ""
+
+msgid "Wake on LAN is a mechanism to boot computers remotely in the local network."
+msgstr ""
+
+msgid "Required Packages"
+msgstr ""
+
+msgid "At least one Wake on LAN utility is needed. Please install one of the following packages (some extra permissions may be required):"
+msgstr ""
+
+msgid "Install etherwake"
+msgstr ""
+
+msgid "Install wakeonlan"
+msgstr ""
+
+msgid "Default Settings"
+msgstr ""
+
+msgid "Default WoL program"
+msgstr ""
+
+msgid "Choose the default Wake on LAN utility"
+msgstr ""
+
+msgid "Etherwake"
+msgstr ""
+
+msgid "Wakeonlan"
+msgstr ""
+
+msgid "Binary used"
+msgstr ""
+
+msgid "You can also install the alternative Wake on LAN utility (some extra permissions may be required):"
+msgstr ""
+
+msgid "Install %s"
+msgstr ""
+
+msgid "Wake on LAN Targets"
+msgstr ""
+
+msgid "Configure hosts that can be woken up. Click the Wake button to send a magic packet. The status column shows the live state, refreshed every 5 seconds."
+msgstr ""
+
+msgid "Note: wakeonlan binary does not support interface, broadcast, and password options (etherwake only)."
+msgstr ""
+
+msgid "These options will be ignored if wakeonlan is used."
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Mandatory"
+msgstr ""
+
+msgid "MAC Address"
+msgstr ""
+
+msgid "MAC already exists"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Checking…"
+msgstr ""
+
+msgid "IP Address"
+msgstr ""
+
+msgid "Optional. If left empty, the IPv4 address is discovered automatically via the ARP table after waking the device."
+msgstr ""
+
+msgid "Discovering…"
+msgstr ""
+
+msgid "Interface"
+msgstr ""
+
+msgid "Etherwake only"
+msgstr ""
+
+msgid "Broadcast"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Edit target"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Online"
+msgstr ""
+
+msgid "Offline"
+msgstr ""
+
+msgid "Discovering"
+msgstr ""
+
+msgid "Unknown"
+msgstr ""
+
+msgid "Wake"
+msgstr ""
+
+msgid "Output"
+msgstr ""
+
+msgid "Sending wakeup to %s (%s)…"
+msgstr ""
+
+msgid "Error: %s"
+msgstr ""
+
+msgid "Command completed with code %d"
+msgstr ""
+
+msgid "Device %s is now online"
+msgstr ""
