@@ -58,10 +58,12 @@ ssh root@router "chmod +x /usr/share/rpcd/ucode/luci.wolmon; /etc/init.d/rpcd re
 
 ## 状态
 
-已在 OpenWrt 25.12.5 真机（192.168.10.x）完成端到端验收：状态轮询、
+已在 OpenWrt 25.12.5 完成端到端验收：状态轮询、
 IP 发现回填持久化、唤醒流程均验证通过。
 
 ## 许可证
 
 Apache License, Version 2.0。见 [LICENSE](LICENSE) 与
 [src/luci-app-wolmon/LICENSE](src/luci-app-wolmon/LICENSE)。
+
+## qoder 编码
