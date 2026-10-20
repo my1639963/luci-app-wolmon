@@ -941,6 +941,7 @@ ssh root@router "rm -rf /tmp/luci-*; /etc/init.d/rpcd restart"
 
 **ucode rpcd 后端（/usr/share/rpcd/ucode/）：**
 - 不支持 `for (const x in ...)`，须用 `let`。
+- **但 `for (let x in arr)` 遍历的是下标不是值**（JS 语义不同）：校验 IP 八位组时写成 `for (let part in split(s,'.')) if (part*1 > 255)` 实际比较的是 0..3，`999.1.1.1` 会通过校验。取数组值请用 `for (let i = 0; i < length(arr); i++)`。
 - 正则是 POSIX ERE：不支持 `\s`、`\d`，用 `[[:space:]]`、`[0-9]`。
 - 数组无 `.push()`/`.indexOf()` 方法，须用全局函数 `push(arr, v)` / `index(arr, v)`。
 
@@ -948,6 +949,7 @@ ssh root@router "rm -rf /tmp/luci-*; /etc/init.d/rpcd restart"
 - 表格（GridSection/TableSection）单元格默认走 `renderTextValue()`（纯文本 `<em>none</em>`）；自定义控件必须 `o.editable = true` 并覆盖 `o.renderWidget = function(section_id) {...}`。直接覆盖 `o.render` 无效。
 - `AbstractValue.render` 签名是 `render(option_index, section_id, in_table)`——section_id 是**第二个**参数。
 - 无 `form.PasswordValue`，用 `form.Value` + `o.password = true`。
+- **编辑弹窗会克隆 `editable` 的表格单元格**：`cloneOptions()` 只跳过 `modalonly === false` 的选项，因此 `editable = true` 且未设 `modalonly` 的列（如自定义状态列）在弹窗里有一份副本，**同一 DOM id 出现两次**。用 `document.getElementById()` 只更新表格里的第一个，弹窗副本永远停在初始文案（如 "Checking…"）。应改用 `document.querySelectorAll('#'+id)` 遍历更新所有同 id 节点。
 
 **poll 轮询：**
 - `poll.add(fn, interval)` 在 tick 已初始化时会**同步**触发一次 tick；此时视图节点尚未插入 DOM，若回调里检查 `rootNode.isConnected` 会立即自我注销导致轮询失效。注册应推迟到 `setTimeout(..., 0)`（节点插入发生在微任务中，先于宏任务）。

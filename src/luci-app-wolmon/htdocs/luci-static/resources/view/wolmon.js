@@ -44,13 +44,6 @@ return view.extend({
 		expect: {}
 	}),
 
-	callArp: rpc.declare({
-		object: 'luci.wolmon',
-		method: 'arp',
-		params: [],
-		expect: { '': {} }
-	}),
-
 	callStatus: rpc.declare({
 		object: 'luci.wolmon',
 		method: 'status',
@@ -385,14 +378,14 @@ return view.extend({
 				}, this)).catch(function() {});
 		}
 
-		const ipEl = document.getElementById('wolmon-ip-' + t.sid);
-		if (ipEl) {
+		var ipEls = this.findAllById('wolmon-ip-' + t.sid);
+		for (let i = 0; i < ipEls.length; i++) {
 			if (r.ip)
-				ipEl.textContent = (state == 'online' && r.rtt_ms != null)
-					? '%s (%d ms)'.format(r.ip, r.rtt_ms)
+				ipEls[i].textContent = (state == 'online' && r.rtt_ms != null)
+					? '%s (%.2f ms)'.format(r.ip, r.rtt_ms)
 					: r.ip;
 			else
-				ipEl.textContent = (state == 'discovering') ? _('Discovering…') : '—';
+				ipEls[i].textContent = (state == 'discovering') ? _('Discovering…') : '—';
 		}
 
 		this.setStatusCell(t.sid, state, state == 'online' && prev != null && prev != 'online');
@@ -408,19 +401,28 @@ return view.extend({
 	},
 
 	setStatusCell(sid, state, flash) {
-		const el = document.getElementById('wolmon-status-' + sid);
-		if (!el)
+		/* The edit modal clones grid cells, so the same id can exist twice
+		 * (table row + modal copy); update every copy, not just the first. */
+		const els = this.findAllById('wolmon-status-' + sid);
+		if (!els.length)
 			return;
 
-		el.className = 'wolmon-status ' + (STATUS_CLASS[state] || STATUS_CLASS.unknown);
-		el.textContent = this.statusText(state);
+		for (let i = 0; i < els.length; i++) {
+			const el = els[i];
+			el.className = 'wolmon-status ' + (STATUS_CLASS[state] || STATUS_CLASS.unknown);
+			el.textContent = this.statusText(state);
 
-		if (flash) {
-			el.classList.add('wolmon-flash');
-			window.setTimeout(function() {
-				el.classList.remove('wolmon-flash');
-			}, 1000);
+			if (flash) {
+				el.classList.add('wolmon-flash');
+				window.setTimeout(function() {
+					el.classList.remove('wolmon-flash');
+				}, 1000);
+			}
 		}
+	},
+
+	findAllById(id) {
+		return Array.prototype.slice.call(document.querySelectorAll('#' + id));
 	},
 
 	statusText(state) {
@@ -482,6 +484,7 @@ return view.extend({
 		}, DISCOVER_TIMEOUT);
 
 		return this.callExec(bin, args).then(function(res) {
+			res = res || {};
 			if (res.stdout)
 				self.appendOutput(res.stdout + '\n');
 			if (res.stderr)
